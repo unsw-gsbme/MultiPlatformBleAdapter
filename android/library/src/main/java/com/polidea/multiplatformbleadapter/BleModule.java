@@ -463,7 +463,7 @@ public class BleModule implements BleAdapter {
         final RxBleDevice device = rxBleClient.getBleDevice(deviceIdentifier);
 
         if (connectingDevices.removeDisposable(deviceIdentifier) && device != null) {
-            onSuccessCallback.onSuccess(rxBleDeviceToDeviceMapper.map(device)); // map(device,null)?
+            onSuccessCallback.onSuccess(rxBleDeviceToDeviceMapper.map(device, null)); 
         } else {
             if (device == null) {
                 onErrorCallback.onError(BleErrorUtils.deviceNotFound(deviceIdentifier));
@@ -1372,7 +1372,7 @@ public class BleModule implements BleAdapter {
 
             @Override
             public void onNext(RxBleConnection connection) {
-                Device localDevice = rxBleDeviceToDeviceMapper.map(device);
+                Device localDevice = rxBleDeviceToDeviceMapper.map(device, null);
                 onConnectionStateChangedCallback.onEvent(ConnectionState.CONNECTED);
                 cleanServicesAndCharacteristicsForDevice(localDevice);
                 connectedDevices.put(device.getMacAddress(), localDevice);
