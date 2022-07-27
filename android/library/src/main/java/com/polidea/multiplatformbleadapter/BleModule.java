@@ -117,13 +117,24 @@ public class BleModule implements BleAdapter {
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
 
-        RxJavaPlugins.setErrorHandler(throwable -> {
-            if (throwable instanceof UndeliverableException && throwable.getCause() instanceof BleException) {
-                // Log.v("SampleApplication", "Suppressed UndeliverableException: " + throwable.toString());
-                return; // ignore BleExceptions as they were surely delivered at least once
+        // RxJavaPlugins.setErrorHandler(throwable -> {
+        //     if (throwable instanceof UndeliverableException && throwable.getCause() instanceof BleException) {
+        //         // Log.v("SampleApplication", "Suppressed UndeliverableException: " + throwable.toString());
+        //         return; // ignore BleExceptions as they were surely delivered at least once
+        //     }
+        //     // add other custom handlers if needed
+        //     throw new RuntimeException("Unexpected Throwable in RxJavaPlugins error handler", throwable);
+        // });
+
+        RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                if (throwable instanceof UndeliverableException && throwable.getCause() instanceof BleException) {
+                    return; // ignore BleExceptions as they were surely delivered at least once
+                }
+                // add other custom handlers if needed
+                throw new RuntimeException("Unexpected Throwable in RxJavaPlugins error handler", throwable);
             }
-            // add other custom handlers if needed
-            throw new RuntimeException("Unexpected Throwable in RxJavaPlugins error handler", throwable);
         });
     }
 
