@@ -62,6 +62,11 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
+// import com.polidea.rxandroidble2.RxBleClient;
+import com.polidea.rxandroidble2.exceptions.BleException;
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.plugins.RxJavaPlugins;
+
 import static com.polidea.multiplatformbleadapter.utils.Constants.BluetoothState;
 
 public class BleModule implements BleAdapter {
@@ -111,6 +116,15 @@ public class BleModule implements BleAdapter {
         this.context = context;
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
+
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            if (throwable instanceof UndeliverableException && throwable.getCause() instanceof BleException) {
+                // Log.v("SampleApplication", "Suppressed UndeliverableException: " + throwable.toString());
+                return; // ignore BleExceptions as they were surely delivered at least once
+            }
+            // add other custom handlers if needed
+            throw new RuntimeException("Unexpected Throwable in RxJavaPlugins error handler", throwable);
+        });
     }
 
     @Override
